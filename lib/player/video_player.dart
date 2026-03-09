@@ -6,8 +6,10 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart' hide Video;
 import 'package:signals/signals_flutter.dart';
 import 'package:syncopathy/helper/effect_dispose_mixin.dart';
+import 'package:syncopathy/logging.dart';
 import 'package:syncopathy/model/playlist_model.dart';
 import 'package:syncopathy/player/smooth_video_signals.dart';
+import 'package:path/path.dart' as p;
 import 'package:syncopathy/sqlite/models/video_model.dart';
 
 abstract class VideoPlayer with EffectDispose {
@@ -96,9 +98,9 @@ abstract class VideoPlayer with EffectDispose {
       final entry = playlist.currentPlaylistItem.value;
       var filename = entry?.filename;
       if (filename != null) {
-        filename = Uri.file(filename).toFilePath(windows: false);
+        filename = p.canonicalize(filename);
         final video = _previouslyLoadedVideos.value.firstWhereOrNull((v) {
-          final videoPath = Uri.file(v.videoPath).toFilePath(windows: false);
+          final videoPath = p.canonicalize(v.videoPath);
           return videoPath == filename;
         });
         return video;
@@ -167,10 +169,20 @@ abstract class VideoPlayer with EffectDispose {
 
   Future<void> openMultipleVideos(List<Video> videos) async {
     if (videos.isEmpty) return;
+    Logger.info('VideoPlayer: Opening playlist of ${videos.length} videos');
     _previouslyLoadedVideos.value = videos;
     final playlist = Playlist(videos.map((v) => Media(v.videoPath)).toList());
-    await player.open(playlist, play: player.state.playing);
-    playlistShuffledInternal.value = false;
+    try {
+      await player.open(playlist, play: player.state.playing);
+      playlistShuffledInternal.value = false;
+      Logger.info('VideoPlayer: Playlist successfully opened');
+    } catch (e, stackTrace) {
+      Logger.error(
+        'VideoPlayer: Failed to open playlist of length ${videos.length}',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   void jumpPreviousPlaylistEntry() {
@@ -214,9 +226,32 @@ abstract class VideoPlayer with EffectDispose {
 
   void seekTo(Duration seek) => player.seek(seek);
 
+  void seekBackward() => seekTo(player.state.position - const Duration(seconds: 5));
+
+  void seekForward() => seekTo(player.state.position + const Duration(seconds: 5));
+
   void setSpeed(double speed) => player.setRate(speed.clamp(0.5, 2.0));
+  
+  void speedUp() => setSpeed(playbackSpeed.value + 0.25);
+  
+  void speedDown() => setSpeed(playbackSpeed.value - 0.25);
 
   void setVolume(double volume) => player.setVolume(volume.clamp(0, 130));
+  
+  double _lastVolume = 100.0;
+  
+  void toggleMute() {
+    if (volume.value > 0.0) {
+      _lastVolume = volume.value;
+      setVolume(0.0);
+    } else {
+      setVolume(_lastVolume > 0.0 ? _lastVolume : 100.0);
+    }
+  }
+  
+  void volumeUp() => setVolume(volume.value + 5.0);
+  
+  void volumeDown() => setVolume(volume.value - 5.0);
 
   void togglePause() => player.playOrPause();
 
