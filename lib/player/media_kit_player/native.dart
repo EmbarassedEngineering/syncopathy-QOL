@@ -14,10 +14,12 @@ class MediaKitPlayerImpl extends VideoPlayer {
         osc: !embeddedPlayer,
         externalWindow: !embeddedPlayer,
         aditionalLibMpvOptions: {
-          'config': 'yes',
-          'config-dir': '',
-          'input-default-bindings': 'no',
-          'hwdec': 'auto-safe',
+            'config': 'yes',
+            'config-dir': '',
+            // Disabled in embedded mode to allow Flutter global shortcuts to 
+            // take precedence; enabled in external mode for native interaction.
+            'input-default-bindings': embeddedPlayer ? 'no' : 'yes',
+            'hwdec': 'auto-safe',
           'border': 'yes',
           'geometry': "1280x720",
           'idle': 'yes',

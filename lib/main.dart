@@ -32,6 +32,7 @@ Future<Widget> _initializeAppAndRun({
 
   SettingsModel settings = SettingsModel();
   await settings.load();
+  getIt.registerSingleton<SettingsModel>(settings);
 
   MediaLibrarySettingsModel? mediaSettings;
   MediaManager? mediaManager;
