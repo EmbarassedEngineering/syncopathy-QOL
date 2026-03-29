@@ -52,3 +52,16 @@ objectbox.bat
 TODO
 config.json
 *.7z
+GEMINI.md
+project.faf
+staged_changes.diff
+.gemini/context.yaml
+.loki/CONTINUITY.md
+.loki/memory/semantic/keyboard_shortcuts.md
+.loki/memory/semantic/media_manager_patterns.md
+CLAUDE.md
+android/build/reports/problems/problems-report.html
+conductor/tracks/shortcuts/plan.md
+.faf-dna
+.fafignore
+.gitignore
