@@ -398,7 +398,12 @@ class _SettingsPageState extends State<SettingsPage> {
     final backend = playerModel.playerBackend.watch(context);
     final backendType = settings.playerBackendType.watch(context);
     final isLoaded =
+<<<<<<< HEAD
         backend?.backendType != null && backend?.backendType == backendType;
+=======
+        backend?.backendType != null &&
+        backend?.backendType == backendType;
+>>>>>>> main
 
     return Column(
       children: [
@@ -406,6 +411,7 @@ class _SettingsPageState extends State<SettingsPage> {
           padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0.0),
           child: !isLoaded
               ? Center(child: CircularProgressIndicator())
+<<<<<<< HEAD
               : DropdownMenu<PlayerBackendType>(
                   initialSelection: backendType,
                   expandedInsets: EdgeInsets.zero,
@@ -417,6 +423,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       horizontal: 8.0,
                       vertical: 8.0,
                     ),
+=======
+              : DropdownButton<String>(
+                  value: backendType.toString(),
+                  underline:
+                      const SizedBox.shrink(), // Hides the default underline
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 8.0,
+>>>>>>> main
                   ),
                   dropdownMenuEntries: PlayerBackendType.values.map((e) {
                     return DropdownMenuEntry<PlayerBackendType>(

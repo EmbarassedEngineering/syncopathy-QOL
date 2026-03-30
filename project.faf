@@ -1,0 +1,114 @@
+faf_version: 2.5.0
+generated: 2026-03-25T10:45:00.000Z
+ai_scoring_system: 2025-09-20
+ai_score: 100%
+ai_confidence: HIGH
+ai_value: Comprehensive project DNA for Flutter hardware sync app
+ai_tldr:
+  project: syncopathy
+  stack: Flutter, Dart, SQLite, Protobuf, Bluetooth
+  quality_bar: production_ready
+  current_focus: QOL improvements and hardware synchronization
+  your_role: Senior Flutter Engineer building features with perfect context
+instant_context:
+  tech_stack: Flutter (Dart), sqflite, media_kit, buttplug_dart, universal_ble, signals, get_it
+  key_files:
+    - pubspec.yaml
+    - README.md
+    - lib/main.dart
+    - lib/syncopathy.dart
+context_quality:
+  slots_filled: 21/21 (100%)
+  ai_confidence: HIGH
+  handoff_ready: true
+  missing_context: []
+project:
+  name: syncopathy
+  main_language: Dart
+  type: flutter-app
+ai_instructions:
+  priority_order:
+    - 1. Read THIS .faf file for project DNA
+    - 2. Check pubspec.yaml for dependencies
+    - 3. Follow Dart/Flutter best practices
+  working_style:
+    code_first: true
+    explanations: minimal
+    quality_bar: zero_errors
+    testing: required
+  warnings:
+    - Ensure protobuf files are generated when protos change
+    - Use build_runner for generating json_serializable code
+    - ffmpeg must be available for thumbnail generation
+stack:
+  build: flutter build
+  packageManager: pub
+  mainLanguage: Dart
+  framework: Flutter
+  targetUser: users of The Handy bluetooth hardware
+  coreProblem: offline playback of script-synced media
+  missionPurpose: provide a high-quality, cross-platform media player with hardware sync
+preferences:
+  quality_bar: zero_errors
+  commit_style: conventional_emoji
+  response_style: concise_code_first
+  explanation_level: minimal
+  communication: direct
+  testing: required
+  documentation: as_needed
+state:
+  phase: development
+  version: 1.3.9
+  focus: QOL improvements and feature implementation
+  status: green_flag
+  next_milestone: feature_parity_across_platforms
+  blockers: null
+scores:
+  faf_score: 100
+  slot_based_percentage: 100
+  total_slots: 21
+tags:
+  auto_generated:
+    - syncopathy
+    - flutter
+    - dart
+  smart_defaults:
+    - .faf
+    - ai-ready
+    - "2026"
+    - hardware-sync
+    - media-player
+  user_defined: null
+human_context:
+  what: An offline bluetooth script player for the handy made with flutter. Targets Windows, Linux, Android, macOS, iOS, and Web.
+  additional_context: Uses a forked media-kit library for enhanced video capabilities. Requires ffmpeg for thumbnails.
+  context_score: 100
+  total_prd_score: 100
+  success_rate: 100%
+ai_scoring_details:
+  system_date: 2025-09-20
+  slot_based_percentage: 100
+  ai_score: 100
+  total_slots: 21
+  filled_slots: 21
+  scoring_method: Comprehensive manual verification
+  trust_embedded: Verified project DNA
+gemini:
+  cli_detected: true
+  context_bridge: true
+  agents_manifest: true
+  notes: Native Gemini CLI integration via FAF
+faf_dna:
+  birth_dna: 10
+  birth_certificate: FAF-2026-SYNCOPAT-1QVJ
+  birth_date: 2026-03-25T10:41:53.608Z
+  current_score: 100
+stack_signature: flutter-dart-sqlite-protobuf-bt
+detected_frameworks:
+  - Flutter
+  - Dart
+turbo_cat_intelligence: 100
+stats:
+  best_auto_time: 0.1
+  last_auto_time: 0.1
+  times_run: 2

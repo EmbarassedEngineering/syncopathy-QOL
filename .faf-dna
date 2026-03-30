@@ -1,0 +1,60 @@
+{
+  "birthCertificate": {
+    "born": "2026-03-25T10:41:53.608Z",
+    "birthDNA": 10,
+    "birthDNASource": "legacy",
+    "projectDNA": "f89d5afeb1f37a4f",
+    "authenticated": false,
+    "certificate": "FAF-2026-SYNCOPAT-1QVJ"
+  },
+  "versions": [
+    {
+      "version": "v1.0.0",
+      "timestamp": "2026-03-25T10:41:53.608Z",
+      "score": 10,
+      "changes": [
+        "Initial context from CLAUDE.md"
+      ],
+      "approved": false,
+      "growth": 0,
+      "growthRate": 0
+    }
+  ],
+  "current": {
+    "version": "v1.0.0",
+    "score": 10,
+    "approved": false,
+    "lastSync": "2026-03-25T10:41:53.608Z"
+  },
+  "recovery": {
+    "claudeMD": "C:\\Users\\blibd\\OneDrive\\___PROJECTS\\Projects\\syncopathy-QOL\\CLAUDE.md",
+    "lastBackup": "2026-03-25T10:41:53.608Z",
+    "syncStatus": "active",
+    "autoRecover": true
+  },
+  "growth": {
+    "totalGrowth": 0,
+    "daysActive": 0,
+    "averageDailyGrowth": 0,
+    "bestDay": {
+      "date": "2026-03-25T10:41:53.608Z",
+      "growth": 0
+    },
+    "bestWeek": {
+      "start": "2026-03-25T10:41:53.609Z",
+      "growth": 0
+    },
+    "milestones": [
+      {
+        "type": "birth",
+        "score": 10,
+        "date": "2026-03-25T10:41:53.609Z",
+        "version": "v1.0.0",
+        "label": "Birth",
+        "emoji": "🐣"
+      }
+    ]
+  },
+  "lastModified": "2026-03-25T10:41:53.609Z",
+  "format": "faf-dna-v1"
+}

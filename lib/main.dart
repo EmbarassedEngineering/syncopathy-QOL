@@ -32,6 +32,7 @@ Future<Widget> _initializeAppAndRun({
 
   SettingsModel settings = SettingsModel();
   await settings.load();
+  getIt.registerSingleton<SettingsModel>(settings);
 
   MediaLibrarySettingsModel? mediaSettings;
   MediaManager? mediaManager;
@@ -67,7 +68,12 @@ Future<Widget> _initializeAppAndRun({
     ],
     // HACK: I added this ExcludeSemantics because it spams some accessibility error 🤷‍♂️
     // [ERROR:flutter/shell/platform/common/accessibility_bridge.cc(114)] Failed to update ui::AXTree, error: Nodes left pending by the update: 76
+<<<<<<< HEAD
     child: const ExcludeSemantics(child: GlobalShortcuts(child: Syncopathy())),
+=======
+    child:
+        const ExcludeSemantics(child: GlobalShortcuts(child: Syncopathy())),
+>>>>>>> main
   );
 }
 

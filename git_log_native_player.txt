@@ -1,0 +1,96 @@
+commit c405c89d056964fdf8c6c2dac1709a520143640c
+Author: EmbarassedEngineering <EmbarassedEngineering@users.noreply.github.com>
+Date:   Thu Mar 26 23:44:31 2026 -0700
+
+    feat(shortcuts): implement HardwareKeyboard global shortcuts
+    
+    - Replaced FocusNode-based shortcuts with HardwareKeyboard.addHandler
+    - Added robust _isEditingText guard with ancestor check to prevent
+      shortcuts from firing when focus is on a text input field
+    - Disabled mpv's default input bindings to avoid conflicts with
+      global app shortcuts
+    - Resolved focus-stealing issues where UI elements would block
+      playback control keys
+
+diff --git a/lib/player/media_kit_player/native.dart b/lib/player/media_kit_player/native.dart
+index 6bfc169..dcc3ada 100644
+--- a/lib/player/media_kit_player/native.dart
++++ b/lib/player/media_kit_player/native.dart
+@@ -16,7 +16,7 @@ class MediaKitPlayerImpl extends VideoPlayer {
+         aditionalLibMpvOptions: {
+           'config': 'yes',
+           'config-dir': '',
+-          'input-default-bindings': 'yes',
++          'input-default-bindings': 'no',
+           'hwdec': 'auto-safe',
+           'border': 'yes',
+           'geometry': "1280x720",
+
+commit bf29adf2abcf3ca40e21f5c503ff7b50197e8011
+Author: ofs69 <214839338+ofs69@users.noreply.github.com>
+Date:   Tue Mar 10 09:05:26 2026 +0100
+
+    add true fullscreen & refactoring
+
+diff --git a/lib/player/media_kit_player/native.dart b/lib/player/media_kit_player/native.dart
+new file mode 100644
+index 0000000..6bfc169
+--- /dev/null
++++ b/lib/player/media_kit_player/native.dart
+@@ -0,0 +1,56 @@
++import 'package:media_kit/media_kit.dart';
++import 'package:media_kit_video/media_kit_video.dart' hide Video;
++import 'package:signals/signals_flutter.dart';
++import 'package:syncopathy/player/video_player.dart';
++
++class MediaKitPlayerImpl extends VideoPlayer {
++  @override
++  ReadonlySignal<bool> get paused => _paused;
++  final Signal<bool> _paused = signal(false);
++
++  MediaKitPlayerImpl({required super.embeddedPlayer}) {
++    player = Player(
++      configuration: PlayerConfiguration(
++        osc: !embeddedPlayer,
++        externalWindow: !embeddedPlayer,
++        aditionalLibMpvOptions: {
++          'config': 'yes',
++          'config-dir': '',
++          'input-default-bindings': 'yes',
++          'hwdec': 'auto-safe',
++          'border': 'yes',
++          'geometry': "1280x720",
++          'idle': 'yes',
++          'force-window': embeddedPlayer ? 'no' : 'yes',
++        },
++        vo: embeddedPlayer ? 'libmpv' : 'gpu-next',
++        title: "syncopathy",
++      ),
++    );
++    controller = embeddedPlayer
++        ? VideoController(
++            player,
++            configuration: VideoControllerConfiguration(
++              vo: 'libmpv',
++              hwdec: 'auto-safe',
++            ),
++          )
++        : null;
++
++    NativePlayer? nativePlayer;
++    if (player.platform is NativePlayer) {
++      nativePlayer = player.platform as NativePlayer;
++    }
++    assert(nativePlayer != null, "Non MPV player not supported");
++    _paused.value = !player.state.playing;
++    // media-kit pause state is weird. listen to mpv directly
++    nativePlayer?.observeProperty('pause', (value) async {
++      _paused.value = value == 'yes' ? true : false;
++    });
++    initSignals(player);
++
++    nativePlayer?.setProperty('keep-open', 'yes');
++    nativePlayer?.command(["keybind", "CLOSE_WIN", "ignore"]);
++    nativePlayer?.command(["keybind", "q", "ignore"]);
++  }
++}

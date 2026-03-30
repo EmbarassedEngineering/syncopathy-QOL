@@ -1,0 +1,135 @@
+commit 9a788d2c7d5cdbd1acd313b2603fbd0fd52c32f7
+Author: EmbarassedEngineering <EmbarassedEngineering@users.noreply.github.com>
+Date:   Sat Mar 28 20:38:21 2026 -0700
+
+    feat(unified-logger): implement unified logger with file persistence
+    
+    *   **Persistence**: Added `syncopathy.log` output with a 5MB auto-rotation/cleanup limit.
+    *   **Transition to Logger**: Replaced `debugPrint` and `print` across `media_manager.dart` and the library with `Logger.error()`, `info()`, and `warning()`.
+    *   **Decoupled Logic**: Moved `kDebugMode` and `foundation.dart` dependencies into `logging.dart`, allowing manager/logic files to remain cleaner.
+    *   **Stream-Based**: Exposed `logStream` for real-time diagnostic monitoring in future UI components.
+
+diff --git a/lib/player/video_player.dart b/lib/player/video_player.dart
+index 6c24d4d..7f09112 100644
+--- a/lib/player/video_player.dart
++++ b/lib/player/video_player.dart
+@@ -6,6 +6,7 @@ import 'package:media_kit/media_kit.dart';
+ import 'package:media_kit_video/media_kit_video.dart' hide Video;
+ import 'package:signals/signals_flutter.dart';
+ import 'package:syncopathy/helper/effect_dispose_mixin.dart';
++import 'package:syncopathy/logging.dart';
+ import 'package:syncopathy/model/playlist_model.dart';
+ import 'package:syncopathy/player/smooth_video_signals.dart';
+ import 'package:syncopathy/sqlite/models/video_model.dart';
+@@ -184,10 +185,16 @@ abstract class VideoPlayer with EffectDispose {
+ 
+   Future<void> openMultipleVideos(List<Video> videos) async {
+     if (videos.isEmpty) return;
+-    _previouslyLoadedVideos.value = videos;
+-    final playlist = Playlist(videos.map((v) => Media(v.videoPath)).toList());
+-    await player.open(playlist, play: player.state.playing);
+-    playlistShuffledInternal.value = false;
++    try {
++      _previouslyLoadedVideos.value = videos;
++      final playlist = Playlist(
++        videos.map((v) => Media(v.videoPath)).toList(),
++      );
++      await player.open(playlist, play: player.state.playing);
++      playlistShuffledInternal.value = false;
++    } catch (e, stack) {
++      Logger.error('Failed to open multiple videos', e, stack);
++    }
+   }
+ 
+   void jumpPreviousPlaylistEntry() {
+
+commit 2feadf464b99725e1cfb3baa56a8b51723f509a4
+Author: EmbarassedEngineering <EmbarassedEngineering@users.noreply.github.com>
+Date:   Thu Mar 26 23:41:13 2026 -0700
+
+    feat: improve media library scanning robustness and performance
+    
+    - Decompose refreshVideos into focused private methods
+    - Fix concurrent mutation of _allVideos inside Future.wait
+    - Fix missing await on DatabaseHelper().deleteVideo()
+    - Change saveFavorite/saveDislike to return Future<void>
+    - Track file size + modified date on Video model for smart cache invalidation
+    - Preserve user data when a video is re-processed due to file changes
+    - Add null guards in category management and delete methods
+    - Simplify _getVideoMetadata logic
+    - Add DB migration 000010 for video file stats
+
+diff --git a/lib/player/video_player.dart b/lib/player/video_player.dart
+index 5cabca7..6c24d4d 100644
+--- a/lib/player/video_player.dart
++++ b/lib/player/video_player.dart
+@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
+ import 'package:flutter/material.dart';
+ import 'package:media_kit/media_kit.dart';
+ import 'package:media_kit_video/media_kit_video.dart' hide Video;
+-import 'package:path/path.dart' as p;
+ import 'package:signals/signals_flutter.dart';
+ import 'package:syncopathy/helper/effect_dispose_mixin.dart';
+ import 'package:syncopathy/model/playlist_model.dart';
+@@ -114,9 +113,9 @@ abstract class VideoPlayer with EffectDispose {
+       final entry = playlist.currentPlaylistItem.value;
+       var filename = entry?.filename;
+       if (filename != null) {
+-        filename = p.canonicalize(filename);
++        filename = Uri.file(filename).toFilePath(windows: false);
+         final video = _previouslyLoadedVideos.value.firstWhereOrNull((v) {
+-          final videoPath = p.canonicalize(v.videoPath);
++          final videoPath = Uri.file(v.videoPath).toFilePath(windows: false);
+           return videoPath == filename;
+         });
+         return video;
+@@ -232,6 +231,18 @@ abstract class VideoPlayer with EffectDispose {
+ 
+   void seekTo(Duration seek) => player.seek(seek);
+ 
++  void seekBackward({int seconds = 5}) {
++    final current = currentPositionSeconds.value;
++    final target = (current - seconds).clamp(0, duration.value?.toInt() ?? 0);
++    seekTo(Duration(seconds: target));
++  }
++
++  void seekForward({int seconds = 5}) {
++    final current = currentPositionSeconds.value;
++    final target = (current + seconds).clamp(0, duration.value?.toInt() ?? 0);
++    seekTo(Duration(seconds: target));
++  }
++
+   void setSpeed(double speed) => player.setRate(speed.clamp(0.5, 2.0));
+ 
+   void setVolume(double volume) => player.setVolume(volume.clamp(0, 130));
+
+commit 55a26d6426f6334a2cc678caf529d4f860e51b5d
+Author: ofs69 <214839338+ofs69@users.noreply.github.com>
+Date:   Wed Mar 25 18:00:36 2026 +0100
+
+    testing
+
+diff --git a/lib/player/video_player.dart b/lib/player/video_player.dart
+index 019cbaf..5cabca7 100644
+--- a/lib/player/video_player.dart
++++ b/lib/player/video_player.dart
+@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
+ import 'package:flutter/material.dart';
+ import 'package:media_kit/media_kit.dart';
+ import 'package:media_kit_video/media_kit_video.dart' hide Video;
++import 'package:path/path.dart' as p;
+ import 'package:signals/signals_flutter.dart';
+ import 'package:syncopathy/helper/effect_dispose_mixin.dart';
+ import 'package:syncopathy/model/playlist_model.dart';
+@@ -113,9 +114,9 @@ abstract class VideoPlayer with EffectDispose {
+       final entry = playlist.currentPlaylistItem.value;
+       var filename = entry?.filename;
+       if (filename != null) {
+-        filename = Uri.file(filename).toFilePath(windows: false);
++        filename = p.canonicalize(filename);
+         final video = _previouslyLoadedVideos.value.firstWhereOrNull((v) {
+-          final videoPath = Uri.file(v.videoPath).toFilePath(windows: false);
++          final videoPath = p.canonicalize(v.videoPath);
+           return videoPath == filename;
+         });
+         return video;

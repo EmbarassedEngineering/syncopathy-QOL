@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:syncopathy/ioc.dart';
+import 'package:syncopathy/model/settings_model.dart';
 import 'package:syncopathy/player/video_player.dart';
 
 /// A widget that installs global keyboard shortcuts using [HardwareKeyboard].
@@ -52,8 +53,12 @@ class _GlobalShortcutsState extends State<GlobalShortcuts> {
       // Sacred rule: never steal from text fields
       if (_isEditingText()) return false;
 
+      // Only handle shortcuts in embedded mode; in external mode,
+      // mpv handles keys via native input-default-bindings.
+      final settings = getIt<SettingsModel>();
+      if (!settings.embeddedVideoPlayer.value) return false;
+
       final videoPlayer = getIt<VideoPlayer>();
-      final ctrl = HardwareKeyboard.instance.isControlPressed;
 
       switch (event.logicalKey) {
         case LogicalKeyboardKey.space:
@@ -61,19 +66,47 @@ class _GlobalShortcutsState extends State<GlobalShortcuts> {
           return true;
 
         case LogicalKeyboardKey.arrowLeft:
-          if (ctrl) {
-            videoPlayer.jumpPreviousPlaylistEntry();
-          } else {
-            videoPlayer.seekBackward();
-          }
+          videoPlayer.seekBackward();
           return true;
 
         case LogicalKeyboardKey.arrowRight:
-          if (ctrl) {
-            videoPlayer.jumpNextPlaylistEntry();
-          } else {
-            videoPlayer.seekForward();
-          }
+          videoPlayer.seekForward();
+          return true;
+
+        case LogicalKeyboardKey.keyN:
+          videoPlayer.jumpNextPlaylistEntry();
+          return true;
+
+        case LogicalKeyboardKey.keyB:
+          videoPlayer.jumpPreviousPlaylistEntry();
+          return true;
+
+        case LogicalKeyboardKey.keyM:
+          videoPlayer.toggleMute();
+          return true;
+
+        case LogicalKeyboardKey.arrowUp:
+          videoPlayer.volumeUp();
+          return true;
+
+        case LogicalKeyboardKey.arrowDown:
+          videoPlayer.volumeDown();
+          return true;
+
+        case LogicalKeyboardKey.bracketLeft:
+          videoPlayer.speedDown();
+          return true;
+
+        case LogicalKeyboardKey.bracketRight:
+          videoPlayer.speedUp();
+          return true;
+
+        case LogicalKeyboardKey.keyL:
+          videoPlayer.toggleLooping();
+          return true;
+
+        case LogicalKeyboardKey.keyS:
+          videoPlayer.setPlaylistShuffle(!videoPlayer.playlistShuffled.value);
           return true;
 
         case LogicalKeyboardKey.pageUp:
